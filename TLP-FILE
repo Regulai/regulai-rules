@@ -1,0 +1,48 @@
+rule TLP_RED_restricted_any : tlp red restricted no_share
+{
+  meta:
+    tlp = "RED"
+    severity = "high"
+    intent = "Detectar ficheros marcados como NO COMPARTIR (TLP:RED) en contenido"
+    note = "Detecta marcas explícitas; no lee etiquetas externas (DLP/Sensitivity/xattr)."
+
+  strings:
+    // Variantes comunes (rápidas, sin regex)
+    $a1 = "TLP:RED" nocase ascii wide
+    $a2 = "TLP RED" nocase ascii wide
+    $a3 = "TLP-RED" nocase ascii wide
+    $a4 = "TLP=RED" nocase ascii wide
+
+    // Formato extendido típico
+    $b1 = "Traffic Light Protocol: RED" nocase ascii wide
+    $b2 = "Traffic Light Protocol - RED" nocase ascii wide
+
+    // Algunas organizaciones lo ponen como etiqueta corta
+    $c1 = "TLP RED" nocase ascii wide
+
+  condition:
+    any of them
+}
+
+rule TLP_AMBER_restricted_any : tlp amber restricted limited_share
+{
+  meta:
+    tlp = "AMBER"
+    severity = "medium"
+    intent = "Detectar ficheros marcados como compartición limitada (TLP:AMBER) en contenido"
+    note = "Detecta marcas explícitas; no lee etiquetas externas (DLP/Sensitivity/xattr)."
+
+  strings:
+    $a1 = "TLP:AMBER" nocase ascii wide
+    $a2 = "TLP AMBER" nocase ascii wide
+    $a3 = "TLP-AMBER" nocase ascii wide
+    $a4 = "TLP=AMBER" nocase ascii wide
+
+    $b1 = "Traffic Light Protocol: AMBER" nocase ascii wide
+    $b2 = "Traffic Light Protocol - AMBER" nocase ascii wide
+
+    $c1 = "TLP AMBER" nocase ascii wide
+
+  condition:
+    any of them
+}
