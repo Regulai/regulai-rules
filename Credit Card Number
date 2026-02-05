@@ -1,0 +1,19 @@
+rule CreditCardNumber {
+    meta:
+        description = "Detects credit card patterns (Visa, MC, Amex) with optional separators"
+        severity = "critical"
+    strings:
+        // Visa 16: 4xxx xxxx xxxx xxxx (espacios o guiones opcionales)
+        $visa16 = /4[0-9]{3}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}/
+
+        // Visa 13: 4xxx xxxx xxxx x (si quieres soportarla)
+        $visa13 = /4[0-9]{3}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{1}/
+
+        // MasterCard (clásico 51-55) con separadores opcionales
+        $mc = /5[1-5][0-9]{2}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}/
+
+        // AmEx: 34/37 + 13 dígitos → formato típico 4-6-5
+        $amex = /3[47][0-9]{2}[- ]?[0-9]{6}[- ]?[0-9]{5}/
+    condition:
+        any of them
+}
