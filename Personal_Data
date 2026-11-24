@@ -1,0 +1,47 @@
+// Bulk personal data and identifiers that need context to be detected.
+
+rule Bulk_Personal_Data_Export : personal_data gdpr
+{
+    meta:
+        description = "Many personal data records at once (export or table with names, IDs, emails, phones or IBANs)"
+        severity = "high"
+        action = "consent"
+        category = "personal_data"
+    strings:
+        $dni = /\b[0-9]{8}[A-HJ-NP-TV-Z]\b/
+        $nie = /\b[XYZ][0-9]{7}[A-HJ-NP-TV-Z]\b/
+        $email = /[A-Za-z0-9._%+\-]{1,64}@[A-Za-z0-9\-]{1,63}(\.[A-Za-z0-9\-]{1,63})*\.[A-Za-z]{2,24}/
+        $phone_es = /\b(\+34|0034)?[ ]?[6789][0-9]{2}[ ]?[0-9]{3}[ ]?[0-9]{3}\b/
+        $iban_es = /\bES[0-9]{2}[ ]?([0-9]{4}[ ]?){5}/
+
+        $h_name = /(nombre|apellidos?|first_?name|last_?name|full_?name|surname)"?\s{0,2}[,;\t|]/ nocase
+        $h_id = /(dni|nie|nif|passport|pasaporte|ssn|national_?id)"?\s{0,2}[,;\t|]/ nocase
+        $h_email = /(e-?mail|correo)"?\s{0,2}[,;\t|]/ nocase
+        $h_phone = /(tel(e|\xC3\xA9)fono|m(o|\xC3\xB3)vil|phone|mobile)"?\s{0,2}[,;\t|]/ nocase
+        $h_address = /(direcci(o|\xC3\xB3)n|domicilio|address|c(o|\xC3\xB3)digo_?postal|zip)"?\s{0,2}[,;\t|]/ nocase
+        $h_birth = /(fecha_?(de_?)?nacimiento|birth_?date|date_?of_?birth|dob)"?\s{0,2}[,;\t|]/ nocase
+    condition:
+        (#dni + #nie) >= 5
+        or #iban_es >= 3
+        or #phone_es >= 10
+        or #email >= 20
+        or (3 of ($h_*) and ((#dni + #nie) >= 2 or #email >= 2 or #phone_es >= 2 or #iban_es >= 2))
+}
+
+rule Spanish_Social_Security_Number : personal_data gdpr
+{
+    meta:
+        description = "Spanish social security affiliation number (NUSS/NAF) next to its label"
+        severity = "high"
+        action = "consent"
+        category = "personal_data"
+    strings:
+        $ctx1 = "seguridad social" nocase
+        $ctx2 = "NUSS" fullword
+        $ctx3 = "NAF" fullword
+        $ctx4 = "afiliación" nocase
+        $ctx5 = "afiliacion" nocase
+        $number = /\b[0-5][0-9][ \/\-]?[0-9]{8}[ \/\-]?[0-9]{2}\b/
+    condition:
+        $number and 1 of ($ctx*)
+}

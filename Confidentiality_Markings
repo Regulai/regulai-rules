@@ -1,0 +1,75 @@
+// Explicit confidentiality, legal privilege and proprietary markings
+// (complements the TLP markings).
+
+rule Confidential_Document_Marking : confidentiality
+{
+    meta:
+        description = "Document or message explicitly marked as confidential or internal use only"
+        severity = "medium"
+        action = "consent"
+        category = "confidentiality"
+    strings:
+        $en1 = "strictly confidential" nocase
+        $en2 = "highly confidential" nocase
+        $en3 = "company confidential" nocase
+        $en4 = "confidential and proprietary" nocase
+        $en5 = "internal use only" nocase
+        $en6 = "do not distribute" nocase
+        $en7 = "do not forward" nocase
+        $es1 = "estrictamente confidencial" nocase
+        $es2 = "documento confidencial" nocase
+        $es3 = "uso interno exclusivo" nocase
+        $es4 = "solo para uso interno" nocase
+        $es5 = "sólo para uso interno" nocase
+        $es6 = "uso exclusivamente interno" nocase
+        $es7 = "prohibida su difusión" nocase
+        $es8 = "prohibida su difusion" nocase
+        $es9 = "prohibida su distribución" nocase
+        $es10 = "prohibida su distribucion" nocase
+        $es11 = "difusión restringida" nocase
+        $es12 = "difusion restringida" nocase
+    condition:
+        any of them
+}
+
+rule Legal_Privilege_Marking : confidentiality legal
+{
+    meta:
+        description = "Communication marked as legally privileged (attorney-client, work product, professional secrecy)"
+        severity = "high"
+        action = "consent"
+        category = "confidentiality"
+    strings:
+        $en1 = /attorney[- ]client (privileged|communication)/ nocase
+        $en2 = /privileged (and|&) confidential/ nocase
+        $en3 = "attorney work product" nocase
+        $en4 = "legally privileged" nocase
+        $es1 = /(sujet|amparad|protegid)[oa]s? (a|al|por el) secreto profesional/ nocase
+        $es2 = "deber de secreto profesional" nocase
+        $es3 = /confidencialidad abogado[- ]cliente/ nocase
+        $es4 = "comunicación privilegiada" nocase
+        $es5 = "comunicacion privilegiada" nocase
+    condition:
+        any of them
+}
+
+rule Proprietary_Source_Header : confidentiality source_code
+{
+    meta:
+        description = "Source code or document with a proprietary licence header (not open source)"
+        severity = "medium"
+        action = "consent"
+        category = "confidentiality"
+    strings:
+        $p1 = "unauthorized copying of this file" nocase
+        $p2 = "proprietary and confidential" nocase
+        $p3 = "confidential and proprietary information" nocase
+        $p4 = "contains trade secrets" nocase
+        $word_rights = "all rights reserved" nocase
+        $word_proprietary = "proprietary" nocase
+        $open1 = "permission is hereby granted" nocase
+        $open2 = "licensed under the apache license" nocase
+        $open3 = "gnu general public license" nocase
+    condition:
+        (any of ($p*) or ($word_rights and $word_proprietary)) and not any of ($open*)
+}
