@@ -1,0 +1,46 @@
+// Health data is a special category of personal data (GDPR art. 9).
+
+rule Patient_Health_Record : personal_data health gdpr
+{
+    meta:
+        description = "Patient identifier together with clinical information (health data, GDPR special category)"
+        severity = "high"
+        action = "consent"
+        category = "health"
+    strings:
+        $id1 = "historia clínica" nocase
+        $id2 = "historia clinica" nocase
+        $id3 = /n(\xC2\xBA|\xC2\xB0|o\.?|\xC3\xBAm\.?|um\.?|\xC3\xBAmero|umero) de historia/ nocase
+        $id4 = "NHC" fullword
+        $id5 = "tarjeta sanitaria" nocase
+        $id6 = "nombre del paciente" nocase
+        $id7 = "fecha de nacimiento" nocase
+        $id8 = "medical record number" nocase
+        $id9 = "MRN" fullword
+        $id10 = "patient name" nocase
+        $id11 = "patient id" nocase
+        $id12 = "date of birth" nocase
+        $id13 = "DOB:"
+
+        $cl1 = "diagnóstico" nocase
+        $cl2 = "diagnostico" nocase
+        $cl3 = "diagnosis" nocase
+        $cl4 = "tratamiento" nocase
+        $cl5 = "treatment" nocase
+        $cl6 = "medicación" nocase
+        $cl7 = "medicacion" nocase
+        $cl8 = "medication" nocase
+        $cl9 = "alergias" nocase
+        $cl10 = "allergies" nocase
+        $cl11 = "informe de alta" nocase
+        $cl12 = "discharge summary" nocase
+        $cl13 = "antecedentes" nocase
+        $cl14 = "anamnesis" nocase
+        $cl15 = "exploración física" nocase
+        $cl16 = "CIE-10" nocase
+        $cl17 = "ICD-10" nocase
+        $cl18 = "posología" nocase
+        $cl19 = "pruebas complementarias" nocase
+    condition:
+        1 of ($id*) and 2 of ($cl*)
+}
